@@ -1,0 +1,19 @@
+{
+    "name": "fmb",
+    "version": "0.0.1",
+    "devDependencies": {
+        "@snowpack/plugin-svelte": "^3.6.1",
+        "snowpack": "^3.3.7"
+    },
+    "dependencies": {
+        "@ckeditor/ckeditor5-build-decoupled-document": "^27.1.0",
+        "@snowpack/plugin-sass": "^1.4.0",
+        "ckeditor5-svelte": "^0.0.10",
+        "svelte": "^3.38.2",
+        "svelte-spa-router": "^3.1.0"
+    },
+    "scripts": {
+        "build": "snowpack build",
+        "dev": "snowpack dev"
+    }
+}
