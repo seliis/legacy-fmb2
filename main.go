@@ -15,7 +15,7 @@ type Doc struct {
 	Contain interface{} `json:"contain,omitempty"`
 }
 
-func ScanDir(path string) []Doc {
+func ScanDocs(path string) []Doc {
 	elems, err := ioutil.ReadDir(path)
 	if err != nil {
 		fmt.Println(err)
@@ -28,7 +28,7 @@ func ScanDir(path string) []Doc {
 		each.Dir = elem.IsDir()
 		each.Name = elem.Name()
 		if each.Dir {
-			each.Contain = ScanDir(
+			each.Contain = ScanDocs(
 				path + "/" + each.Name,
 			)
 		}
@@ -43,7 +43,18 @@ func main() {
 	app.Static("/", "./")
 
 	app.Get("docs", func(c *fiber.Ctx) error {
-		return c.JSON(ScanDir("./document"))
+		return c.JSON(ScanDocs("./document"))
+	})
+
+	app.Get("dirs", func(c *fiber.Ctx) error {
+		var dirs []string
+		filepath.Walk("./document", func(path string, info os.FileInfo, err error) error {
+			if info.IsDir() {
+				dirs = append(dirs, path)
+			}
+			return nil
+		})
+		return c.JSON(dirs)
 	})
 
 	app.Get("docs/:name", func(c *fiber.Ctx) error {

@@ -20,14 +20,21 @@
 </script>
 
 {#if inherit.dir == true}
-    <span class="folder" on:click={Controller}>
-        {#if control == false}
+    {#if inherit.contain != null}
+        <span class="folder" on:click={Controller}>
+            {#if control == false}
+                <i class="far fa-folder"/>
+            {:else}
+                <i class="far fa-folder-open"/>
+            {/if}
+            {name}
+        </span>
+    {:else}
+        <span class="empty">
             <i class="far fa-folder"/>
-        {:else}
-            <i class="far fa-folder-open"/>
-        {/if}
-        {name}
-    </span>
+            {name}
+        </span>
+    {/if}
 {:else}
     <span class="file"
         on:click={
@@ -87,6 +94,15 @@
         @extend %block;
         i {
             color: $miho-yellow-a;
+        }
+    }
+
+    .empty {
+        @extend %block;
+        color: #264D9A;
+        cursor: default;
+        &:hover {
+            color: #264D9A;
         }
     }
 

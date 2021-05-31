@@ -9,16 +9,19 @@
         "create"
     ]
 
-    function MasterControl(target) {
-        window.location.href = "#/document/" + target;
-    }
-
     let slave = false;
     function SlaveControl() {
         slave = !slave;
     }
 
-    async function GetJSON() {
+    function MasterControl(target) {
+        window.location.href = "#/document/" + target;
+        if (slave == true) {
+            slave = !slave;
+        }
+    }
+
+    async function GetDocs() {
         const recv = await fetch("docs");
         return await recv.json();
     }
@@ -52,7 +55,7 @@
         </div>
         {#if slave == true}
             <div id="slave" transition:slide>
-                {#await GetJSON() then result}
+                {#await GetDocs() then result}
                     {#each result as data}
                         <TreeMaker
                             inherit={data}
@@ -118,7 +121,6 @@
                     font-weight: 500;
                     font-size: 16px;
                     cursor: pointer;
-                    margin: 0 5px;
                     &:hover {
                         background-color: $miho-yellow-a;
                         color: $miho-black-a;
@@ -133,7 +135,7 @@
             position: absolute;
             padding: 0 25px;
             display: flex;
-            width: 20%;
+            width: 300px;
         }
     }
 
