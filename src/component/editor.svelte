@@ -2,9 +2,9 @@
     import CKEditor from "ckeditor5-svelte";
     import Decoupled from "@ckeditor/ckeditor5-build-decoupled-document/build/ckeditor";
 
+    let data = "Hello, World!";
     let editor = Decoupled;
     let instance = null;
-    let data = "Hello, World!";
 
     let editorConfig = {
         toolbar: {
@@ -31,63 +31,67 @@
     };
 
     async function GetDirs() {
-        const recv = await fetch("dirs");
-        return await recv.json();
-    }
-
-    function IsWidth() {
-        const width = window.innerWidth
-        if (width < 1200) {
-            return false
-        } else {
-            return true
-        }
+        const resp = await fetch("doc/dirs");
+        return await resp.json();
     }
 
     async function SendData() {
-        
-    }
+        const payload = {
+            directory: document.getElementById("directory").value,
+            subject: document.getElementById("subject").value,
+            content: data
+        };
+
+        // Need to Code the Rule Here
+
+        const resp = await fetch("doc/send", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (resp.status == 200) {
+            alert("Sent")
+        } else {
+            alert("Failed")
+        }
+    };
 </script>
 
 <div id="editor">
-    {#if IsWidth() == true}
-        <div id="control">
-            <div id="control-left">
-                <div id="control-left-directory" class="container">
-                    <h1>directory</h1>
-                    <select name="directory" id="directory">
-                        {#await GetDirs() then result}
-                            {#each result as dir}
-                                <option value={dir}>
-                                    {dir}
-                                </option>
-                            {/each}
-                        {/await}
-                    </select>
-                </div>
-                <div id="control-left-subject" class="container">
-                    <h1>subject</h1>
-                    <input type="text" id="subject" name="subject"/>
-                </div>
+    <div id="control">
+        <div id="control-left">
+            <div id="control-left-directory" class="container">
+                <h1>directory</h1>
+                <select name="directory" id="directory">
+                    {#await GetDirs() then result}
+                        {#each result as dir}
+                            <option value={dir}>
+                                {dir}
+                            </option>
+                        {/each}
+                    {/await}
+                </select>
             </div>
-            <div id="control-right">
-                <input type="submit" value="send"
-                    on:click={SendData}
-                />
+            <div id="control-left-subject" class="container">
+                <h1>subject</h1>
+                <input type="text" id="subject" name="subject"/>
             </div>
         </div>
-        <CKEditor
-            bind:editor
-            on:ready={OnReady}
-            bind:config={editorConfig}
-            bind:value={data}
-        />
-    {:else}
-        <div id="desktop">
-            <p>Sorry, This Page Only for Desktop</p>
-            <p>If You're Desktop, Please Refresh in Maximum Screen.</p>
+        <div id="control-right">
+            <input type="submit" value="send"
+                on:click={SendData}
+            />
         </div>
-    {/if}
+    </div>
+    <CKEditor
+        bind:editor
+        on:ready={OnReady}
+        bind:config={editorConfig}
+        bind:value={data}
+    />
 </div>
 
 <style lang="scss">
@@ -122,7 +126,7 @@
                 }
                 select, input {
                     font-family: "Quicksand", sans-serif;
-                    text-transform: capitalize;
+                    text-transform: none;
                     cursor: pointer;
                     padding: 0 25px;
                     font-size: 16px;
@@ -142,18 +146,5 @@
                 width: 250px;
             }
         }
-    }
-
-    #desktop {
-        font-family: "Quicksand", sans-serif;
-        background-color: $miho-blue-a;
-        justify-content: center;
-        flex-direction: column;
-        color: $miho-white-a;
-        align-items: center;
-        font-weight: 700;
-        font-size: 16px;
-        display: flex;
-        height: 100vh;
     }
 </style>

@@ -12,7 +12,7 @@ check:
 
 build: check
 	@npm run build
-	@mkdir -p $(targetPath)
+	@mkdir -p $(targetPath)/document
 	@cp -r ./build/* $(targetPath)
 	@rm -rf ./build
 	@echo "** Miho: Brand New Build Moved to Target Path **";

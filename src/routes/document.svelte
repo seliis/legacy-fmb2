@@ -22,13 +22,14 @@
     }
 
     async function GetDocs() {
-        const recv = await fetch("docs");
-        return await recv.json();
+        const resp = await fetch("doc/docs");
+        return await resp.json();
     }
 
-    async function ChangeContent(name) {
+    async function GetDoc(name) {
         console.log(name);
-        slave = !slave;
+        const resp = await fetch("doc/getdoc/" + name);
+        return await resp.text();
     }
 </script>
 
@@ -56,21 +57,31 @@
         {#if slave == true}
             <div id="slave" transition:slide>
                 {#await GetDocs() then result}
-                    {#each result as data}
-                        <TreeMaker
-                            inherit={data}
-                            name={data.name}
-                            control={!slave}
-                            changer={ChangeContent}
-                        />
-                    {/each}
+                    {#if result != null}
+                        {#each result as data}
+                            <TreeMaker
+                                inherit={data}
+                                name={data.name}
+                                control={!slave}
+                                changer={MasterControl}
+                            />
+                        {/each}
+                    {/if}
                 {/await}
             </div>
         {/if}
     </nav>
     <div id="content">
-        {#if params.target == "create"}
+        {#if params.target == null}
+            <div id="document">
+                <h1>Welcome to VFA-314 Library</h1>
+            </div>
+        {:else if params.target == "create"}
             <Editor/>
+        {:else}
+            {#await GetDoc(params.target) then Data}
+                {@html Data}
+            {/await}
         {/if}
     </div>
 </section>
@@ -114,8 +125,9 @@
             #control {
                 display: flex;
                 div {
-                    background-color: $miho-blue-c;
+                    background-color: $miho-blue-d;
                     text-transform: capitalize;
+                    color: $miho-black-a;
                     border-radius: 5px;
                     padding: 8px 16px;
                     font-weight: 500;
@@ -123,7 +135,6 @@
                     cursor: pointer;
                     &:hover {
                         background-color: $miho-yellow-a;
-                        color: $miho-black-a;
                     }
                 }
             }
@@ -143,5 +154,9 @@
         position: relative;
         height: 100%;
         width: 100%;
+    }
+
+    #document {
+        background-color: $miho-blue-d;
     }
 </style>

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -13,6 +14,12 @@ type Doc struct {
 	Dir     bool        `json:"dir"`
 	Name    string      `json:"name"`
 	Contain interface{} `json:"contain,omitempty"`
+}
+
+type Post struct {
+	Directory string `json:"directory"`
+	Subject   string `json:"subject"`
+	Content   string `json:"content"`
 }
 
 func ScanDocs(path string) []Doc {
@@ -42,11 +49,11 @@ func main() {
 
 	app.Static("/", "./")
 
-	app.Get("docs", func(c *fiber.Ctx) error {
+	app.Get("doc/docs", func(c *fiber.Ctx) error {
 		return c.JSON(ScanDocs("./document"))
 	})
 
-	app.Get("dirs", func(c *fiber.Ctx) error {
+	app.Get("doc/dirs", func(c *fiber.Ctx) error {
 		var dirs []string
 		filepath.Walk("./document", func(path string, info os.FileInfo, err error) error {
 			if info.IsDir() {
@@ -57,15 +64,33 @@ func main() {
 		return c.JSON(dirs)
 	})
 
-	app.Get("docs/:name", func(c *fiber.Ctx) error {
+	app.Get("doc/getdoc/:name", func(c *fiber.Ctx) error {
 		var found string
 		filepath.Walk("./document", func(path string, info os.FileInfo, err error) error {
-			if info.Name() == c.Params("name") {
+			if info.Name() == c.Params("name")+".html" {
 				found = path
 			}
 			return nil
 		})
-		return c.SendFile(found)
+		if found != "" {
+			return c.SendFile(found)
+		} else {
+			return c.SendStatus(http.StatusNotFound)
+		}
+	})
+
+	app.Post("doc/send", func(c *fiber.Ctx) error {
+		recv := new(Post) // why var declare make pointer error?
+		if err := c.BodyParser(recv); err != nil {
+			return err
+		}
+		file, err := os.Create(recv.Directory + "/" + recv.Subject + ".html")
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		file.WriteString(recv.Content)
+		return c.SendStatus(http.StatusOK)
 	})
 
 	app.Listen(":8080")

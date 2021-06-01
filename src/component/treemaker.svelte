@@ -38,7 +38,9 @@
 {:else}
     <span class="file"
         on:click={
-            () => changer(name)
+            () => changer(
+                RemoveExt(name)
+            )
         }
     >
         <i class="far fa-file-alt"/>
@@ -60,7 +62,9 @@
                 {:else}
                     <span class="file"
                         on:click={
-                            () => changer(data.name)
+                            () => changer(
+                                RemoveExt(data.name)
+                            )
                         }
                     >
                         <i class="far fa-file-alt"/>
